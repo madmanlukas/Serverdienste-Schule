@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serverdienste Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border: 1px solid #4a5568;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5em;
+            color: #00d4aa;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            color: #a0aec0;
+            font-size: 1.1em;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #2d3748;
+            color: #00d4aa;
+            border: 1px solid #4a5568;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .back-button:hover {
+            background: #4a5568;
+            border-color: #00d4aa;
+        }
+
+        .back-button.show {
+            display: block;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .service-card {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .service-card:hover {
+            border-color: #00d4aa;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 212, 170, 0.15);
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .service-icon {
+            font-size: 2.5em;
+            margin-right: 15px;
+        }
+
+        .service-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3em;
+            font-weight: 500;
+            color: #00d4aa;
+        }
+
+        .service-description {
+            color: #a0aec0;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 12px;
+            height: 12px;
+            background: #48bb78;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(72, 187, 120, 0.6);
+        }
+
+        .service-details {
+            display: none;
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            border-radius: 12px;
+            padding: 40px;
+        }
+
+        .service-details.show {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4a5568;
+        }
+
+        .detail-icon {
+            font-size: 4em;
+            margin-right: 25px;
+        }
+
+        .detail-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.2em;
+            color: #00d4aa;
+            font-weight: 600;
+        }
+
+        .detail-content {
+            display: grid;
+            gap: 25px;
+        }
+
+        .info-section {
+            background: #1a202c;
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            padding: 25px;
+        }
+
+        .info-section h4 {
+            font-family: 'JetBrains Mono', monospace;
+            color: #00d4aa;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-section h4::before {
+            content: "▶";
+            margin-right: 10px;
+            font-size: 0.8em;
+        }
+
+        .info-section p {
+            color: #e2e8f0;
+            line-height: 1.7;
+            font-size: 1em;
+        }
+
+        .info-list {
+            list-style: none;
+            margin: 0;
+        }
+
+        .info-list li {
+            color: #e2e8f0;
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .advantages li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #48bb78;
+            font-weight: bold;
+        }
+
+        .disadvantages li::before {
+            content: "✗";
+            position: absolute;
+            left: 0;
+            color: #f56565;
+            font-weight: bold;
+        }
+
+        .best-use {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border-left: 4px solid #00d4aa;
+        }
+
+        .author-tab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: #a0aec0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .author-tab:hover {
+            background: #4a5568;
+            border-color: #00d4aa;
+            transform: translateY(-2px);
+        }
+
+        .author-tab::before {
+            content: "👥 ";
+            margin-right: 5px;
+        }
+
+        .author-details {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: #e2e8f0;
+            display: none;
+            min-width: 200px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .author-details.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .author-details h5 {
+            color: #00d4aa;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .author-details ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .author-details li {
+            margin-bottom: 5px;
+            color: #a0aec0;
+        }
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .detail-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .detail-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" id="backButton" onclick="goBack()">← Zurück</button>
+            <h1>💻 Serverdienste</h1>
+            <p>Übersicht und Analyse der verfügbaren Server-Services</p>
+        </div>
+
+        <div class="services-grid" id="servicesGrid">
+            <div class="service-card" onclick="showServiceDetails('apache')">
+                <div class="status-indicator"></div>
+                <div class="service-header">
+                    <span class="service-icon">🌐</span>
+                    <div class="service-title">Apache HTTP Server</div>
+                </div>
+                <div class="service-description">
+                    Bewährter Open-Source Webserver für die Bereitstellung von Websites und Webanwendungen mit umfangreicher Modul-Unterstützung.
+                </div>
+            </div>
+
+            <div class="service-card" onclick="showServiceDetails('mysql')">
+                <div class="status-indicator"></div>
+                <div class="service-header">
+                    <span class="service-icon">🗄️</span>
+                    <div class="service-title">MySQL Database</div>
+                </div>
+                <div class="service-description">
+                    Relationales Datenbankmanagementsystem für strukturierte Datenspeicherung mit hoher Stabilität und Performance.
+                </div>
+            </div>
+
+            <div class="service-card" onclick="showServiceDetails('nginx')">
+                <div class="status-indicator"></div>
+                <div class="service-header">
+                    <span class="service-icon">⚡</span>
+                    <div class="service-title">Nginx</div>
+                </div>
+                <div class="service-description">
+                    Hochperformanter Webserver und Reverse Proxy, optimiert für hohe Concurrent-Verbindungen und Load Balancing.
+                </div>
+            </div>
+
+            <div class="service-card" onclick="showServiceDetails('docker')">
+                <div class="status-indicator"></div>
+                <div class="service-header">
+                    <span class="service-icon">🐳</span>
+                    <div class="service-title">Docker</div>
+                </div>
+                <div class="service-description">
+                    Container-Plattform für portable, isolierte Anwendungsbereitstellung und moderne DevOps-Workflows.
+                </div>
+            </div>
+
+            <div class="service-card" onclick="showServiceDetails('ssh')">
+                <div class="status-indicator"></div>
+                <div class="service-header">
+                    <span class="service-icon">🔐</span>
+                    <div class="service-title">SSH Server</div>
+                </div>
+                <div class="service-description">
+                    Secure Shell für verschlüsselte Remote-Verbindungen, sichere Dateienübertragung und Server-Administration.
+                </div>
+            </div>
+
+            <div class="service-card" onclick="showServiceDetails('ftp')">
+                <div class="status-indicator"></div>
+                <div class="service-header">
+                    <span class="service-icon">📁</span>
+                    <div class="service-title">FTP Server</div>
+                </div>
+                <div class="service-description">
+                    File Transfer Protocol für einfache Dateiübertragung zwischen Client und Server, hauptsächlich für Legacy-Systeme.
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="service-details" id="serviceDetails"></div>
+
+        <!-- Author Tab -->
+        <div class="author-tab" id="authorTab" onclick="toggleAuthorDetails()">
+            Autoren
+        </div>
+        
+        <div class="author-details" id="authorDetails">
+            <h5>Entwickelt von:</h5>
+            <ul>
+                <li>Lukas Langlets</li>
+                <li>Jonas Kern</li>
+                <li>Fabian Funke</li>
+                <li>Hauke Götz</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentView = 'services';
+        
+        const serviceData = {
+            apache: {
+                icon: '🌐',
+                name: 'Apache HTTP Server',
+                definition: 'Apache HTTP Server ist ein Open-Source-Webserver, der HTTP-Anfragen verarbeitet und Webinhalte an Clients ausliefert. Er fungiert als Mittler zwischen Website-Besuchern und den angeforderten Webseiten.',
+                advantages: [
+                    'Sehr stabil und zuverlässig',
+                    'Umfangreiche Dokumentation und Community-Support',
+                    'Flexible Konfiguration durch .htaccess-Dateien',
+                    'Große Auswahl an verfügbaren Modulen',
+                    'Plattformübergreifend verfügbar',
+                    'Unterstützt verschiedene Programmiersprachen'
+                ],
+                disadvantages: [
+                    'Höherer Speicherverbrauch als moderne Alternativen',
+                    'Langsamere Performance bei hoher Concurrent-Load',
+                    'Komplexere Konfiguration für Anfänger',
+                    'Kann bei vielen gleichzeitigen Verbindungen langsam werden'
+                ],
+                bestUse: 'Ideal für traditionelle Webhosting-Umgebungen, Content-Management-Systeme wie WordPress, und Projekte die .htaccess-Flexibilität benötigen. Besonders geeignet für kleine bis mittlere Websites und Entwicklungsumgebungen.'
+            },
+            mysql: {
+                icon: '🗄️',
+                name: 'MySQL Database',
+                definition: 'MySQL ist ein relationales Datenbankmanagementsystem (RDBMS), das strukturierte Daten in Tabellen speichert und SQL-Abfragen zur Datenverwaltung verwendet. Es bietet ACID-Eigenschaften für Datenkonsistenz.',
+                advantages: [
+                    'Einfache Installation und Verwaltung',
+                    'Hohe Performance bei Lese-Operationen',
+                    'Große Community und umfangreiche Dokumentation',
+                    'Kostenlos und Open Source',
+                    'Gute Integration mit Webentwicklungsframeworks',
+                    'Bewährte Stabilität und Zuverlässigkeit'
+                ],
+                disadvantages: [
+                    'Eingeschränkte Funktionen in der kostenlosen Version',
+                    'Weniger geeignet für sehr komplexe Abfragen',
+                    'Limitierte NoSQL-Funktionalität',
+                    'Kann bei sehr großen Datenmengen langsamer werden',
+                    'Weniger fortgeschrittene Features als PostgreSQL'
+                ],
+                bestUse: 'Perfect für Web-Anwendungen, E-Commerce-Systeme, Content-Management-Systeme und kleine bis mittlere Unternehmensanwendungen. Besonders beliebt in LAMP/LEMP-Stack-Umgebungen.'
+            },
+            nginx: {
+                icon: '⚡',
+                name: 'Nginx',
+                definition: 'Nginx ist ein hochperformanter Webserver und Reverse Proxy, der für seine Effizienz bei der Bearbeitung vieler gleichzeitiger Verbindungen entwickelt wurde. Er arbeitet ereignisgesteuert und asynchron.',
+                advantages: [
+                    'Extrem hohe Performance bei vielen Concurrent-Connections',
+                    'Geringer Speicherverbrauch',
+                    'Exzellente Load Balancing-Fähigkeiten',
+                    'Integrierte Reverse Proxy-Funktionalität',
+                    'Effizientes Caching',
+                    'Sehr stabil unter hoher Last'
+                ],
+                disadvantages: [
+                    'Keine .htaccess-Unterstützung',
+                    'Konfiguration kann für Anfänger komplex sein',
+                    'Weniger Module als Apache verfügbar',
+                    'Dynamische Konfigurationsänderungen schwieriger',
+                    'Steilere Lernkurve'
+                ],
+                bestUse: 'Optimal für hochfrequentierte Websites, Microservices-Architekturen, API-Gateways und als Load Balancer. Ideal für moderne Web-Anwendungen mit hohen Performance-Anforderungen.'
+            },
+            docker: {
+                icon: '🐳',
+                name: 'Docker',
+                definition: 'Docker ist eine Containerisierungsplattform, die Anwendungen und ihre Abhängigkeiten in isolierte, portable Container verpackt. Dies ermöglicht konsistente Bereitstellung über verschiedene Umgebungen hinweg.',
+                advantages: [
+                    'Konsistente Umgebungen (Development, Test, Production)',
+                    'Schnelle Bereitstellung und Skalierung',
+                    'Effiziente Ressourcennutzung',
+                    'Vereinfachte Dependency-Verwaltung',
+                    'Portable und isolierte Anwendungen',
+                    'Unterstützt Microservices-Architektur'
+                ],
+                disadvantages: [
+                    'Lernkurve für Container-Konzepte',
+                    'Zusätzliche Komplexität in der Infrastruktur',
+                    'Potenzielle Sicherheitsrisiken bei unsicherer Konfiguration',
+                    'Overhead bei sehr einfachen Anwendungen',
+                    'Persistent Storage kann komplex werden'
+                ],
+                bestUse: 'Ideal für Microservices, CI/CD-Pipelines, Cloud-native Anwendungen und DevOps-Umgebungen. Besonders wertvoll für Teams, die konsistente Deployment-Prozesse benötigen.'
+            },
+            ssh: {
+                icon: '🔐',
+                name: 'SSH Server',
+                definition: 'SSH (Secure Shell) ist ein Netzwerkprotokol für sichere Remote-Verbindungen zu Servern. Es ermöglicht verschlüsselte Kommunikation und sichere Authentifizierung über unsichere Netzwerke.',
+                advantages: [
+                    'Starke Verschlüsselung aller übertragenen Daten',
+                    'Verschiedene Authentifizierungsmethoden (Passwort, Keys)',
+                    'Tunneling und Port-Forwarding möglich',
+                    'Sichere Dateiübertragung (SCP, SFTP)',
+                    'Plattformübergreifend verfügbar',
+                    'Industriestandard für Remote-Zugriff'
+                ],
+                disadvantages: [
+                    'Kann Ziel von Brute-Force-Angriffen werden',
+                    'Konfiguration erfordert Sicherheitskenntnisse',
+                    'Potenzielle Single Point of Failure',
+                    'Bei falscher Konfiguration Sicherheitsrisiken',
+                    'Kann durch Firewalls blockiert werden'
+                ],
+                bestUse: 'Essentiell für Server-Administration, Remote-Development, sichere Dateiübertragung und automatisierte Deployment-Skripte. Unverzichtbar in allen professionellen Server-Umgebungen.'
+            },
+            ftp: {
+                icon: '📁',
+                name: 'FTP Server',
+                definition: 'FTP (File Transfer Protocol) ist ein Netzwerkprotokol für die Übertragung von Dateien zwischen Client und Server. Es ermöglicht das Hochladen, Herunterladen und Verwalten von Dateien auf einem Remote-Server.',
+                advantages: [
+                    'Einfache Dateiübertragung und -verwaltung',
+                    'Unterstützung für große Dateien',
+                    'Wiederaufnahme unterbrochener Übertragungen',
+                    'Viele kompatible Client-Anwendungen',
+                    'Batch-Operationen möglich',
+                    'Etablierter Standard'
+                ],
+                disadvantages: [
+                    'Unsichere Übertragung (Klartext-Passwörter)',
+                    'Firewall-Probleme durch aktive/passive Modi',
+                    'Veraltetes Protokoll mit Sicherheitslücken',
+                    'Begrenzte Metadaten-Unterstützung',
+                    'Schwieriger durch NAT/Proxy zu routen'
+                ],
+                bestUse: 'Geeignet für interne Netzwerke, Legacy-Systeme und einfache Dateifreigabe. Sollte durch SFTP oder HTTPS ersetzt werden, wenn Sicherheit wichtig ist.'
+            },
+
+        };
+
+        function showServiceDetails(serviceId) {
+            const service = serviceData[serviceId];
+            const servicesGrid = document.getElementById('servicesGrid');
+            const serviceDetails = document.getElementById('serviceDetails');
+            const backButton = document.getElementById('backButton');
+
+            const advantagesHTML = service.advantages.map(advantage => `<li>${advantage}</li>`).join('');
+            const disadvantagesHTML = service.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('');
+
+            serviceDetails.innerHTML = `
+                <div class="detail-header">
+                    <span class="detail-icon">${service.icon}</span>
+                    <h2 class="detail-title">${service.name}</h2>
+                </div>
+                
+                <div class="detail-content">
+                    <div class="info-section">
+                        <h4>Definition</h4>
+                        <p>${service.definition}</p>
+                    </div>
+
+                    <div class="info-section">
+                        <h4>Vorteile</h4>
+                        <ul class="info-list advantages">${advantagesHTML}</ul>
+                    </div>
+
+                    <div class="info-section">
+                        <h4>Nachteile</h4>
+                        <ul class="info-list disadvantages">${disadvantagesHTML}</ul>
+                    </div>
+
+                    <div class="info-section best-use">
+                        <h4>Bester Nutzungsbereich</h4>
+                        <p>${service.bestUse}</p>
+                    </div>
+                </div>
+            `;
+
+            servicesGrid.style.display = 'none';
+            serviceDetails.classList.add('show');
+            backButton.classList.add('show');
+            currentView = 'details';
+        }
+
+        function goBack() {
+            const servicesGrid = document.getElementById('servicesGrid');
+            const serviceDetails = document.getElementById('serviceDetails');
+            const backButton = document.getElementById('backButton');
+
+            if (currentView === 'details') {
+                serviceDetails.classList.remove('show');
+                servicesGrid.style.display = 'grid';
+                backButton.classList.remove('show');
+                currentView = 'services';
+            }
+        }
+
+        // Author tab functionality
+        function toggleAuthorDetails() {
+            const authorDetails = document.getElementById('authorDetails');
+            authorDetails.classList.toggle('show');
+        }
+
+        // Close author details when clicking outside
+        document.addEventListener('click', function(event) {
+            const authorTab = document.getElementById('authorTab');
+            const authorDetails = document.getElementById('authorDetails');
+            
+            if (!authorTab.contains(event.target) && !authorDetails.contains(event.target)) {
+                authorDetails.classList.remove('show');
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (currentView === 'details') {
+                    goBack();
+                } else {
+                    document.getElementById('authorDetails').classList.remove('show');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
